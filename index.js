@@ -1,12 +1,15 @@
 const express = require('express');
 const admin = require('firebase-admin');
 
-let keyData = process.env.SERVICE_ACCOUNT_KEY.replace(/(\r\n|\n|\r)/g, '\\n');
+let keyData = process.env.SERVICE_ACCOUNT_KEY;
+keyData = keyData.replace(/(\r\n|\n|\r)/g, '\\n');
 const serviceAccount = JSON.parse(keyData);
 
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-});
+if (!admin.apps.length) {
+  admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+  });
+}
 
 const app = express();
 app.use(express.json());
