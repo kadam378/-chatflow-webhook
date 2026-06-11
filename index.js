@@ -2,8 +2,6 @@ const express = require('express');
 const admin = require('firebase-admin');
 const fs = require('fs');
 
-console.log('firebase-admin version:', require('firebase-admin/package.json').version);
-
 let serviceAccount;
 try {
   const raw = fs.readFileSync('/etc/secrets/serviceAccount.json', 'utf8');
