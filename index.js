@@ -1,20 +1,20 @@
 const express = require('express');
-const admin = require('firebase-admin');
+const { initializeApp, cert } = require('firebase-admin/app');
+const { getMessaging } = require('firebase-admin/messaging');
 const fs = require('fs');
 
 let serviceAccount;
 try {
   const raw = fs.readFileSync('/etc/secrets/serviceAccount.json', 'utf8');
-  console.log('File read success, length:', raw.length);
   serviceAccount = JSON.parse(raw);
-  console.log('JSON parse success, type:', serviceAccount.type);
+  console.log('✅ Service account loaded');
 } catch (e) {
-  console.error('File/JSON error:', e.message);
+  console.error('❌ File error:', e.message);
   process.exit(1);
 }
 
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
+initializeApp({
+  credential: cert(serviceAccount),
 });
 
 const app = express();
@@ -32,7 +32,7 @@ app.post('/send-notification', async (req, res) => {
       data: data || {},
       token,
     };
-    const response = await admin.messaging().send(message);
+    const response = await getMessaging().send(message);
     res.status(200).json({ success: true, messageId: response });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
