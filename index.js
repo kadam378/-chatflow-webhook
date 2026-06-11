@@ -2,9 +2,18 @@ const express = require('express');
 const admin = require('firebase-admin');
 const fs = require('fs');
 
-const serviceAccount = JSON.parse(
-  fs.readFileSync('/etc/secrets/serviceAccount.json', 'utf8')
-);
+console.log('firebase-admin version:', require('firebase-admin/package.json').version);
+
+let serviceAccount;
+try {
+  const raw = fs.readFileSync('/etc/secrets/serviceAccount.json', 'utf8');
+  console.log('File read success, length:', raw.length);
+  serviceAccount = JSON.parse(raw);
+  console.log('JSON parse success, type:', serviceAccount.type);
+} catch (e) {
+  console.error('File/JSON error:', e.message);
+  process.exit(1);
+}
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
