@@ -1,7 +1,6 @@
 const express = require('express');
 const https = require('https');
 const app = express();
-
 app.use(express.json());
 
 const ONESIGNAL_APP_ID = "de090e53-aae0-43d5-879a-533989f269f7";
@@ -20,7 +19,6 @@ function sendOneSignalNotification(title, message, chatUuid, contactName, contac
         contact_phone: contactPhone,
       }
     });
-
     const options = {
       hostname: 'onesignal.com',
       path: '/api/v1/notifications',
@@ -31,7 +29,6 @@ function sendOneSignalNotification(title, message, chatUuid, contactName, contac
         'Content-Length': Buffer.byteLength(body)
       }
     };
-
     const req = https.request(options, (res) => {
       let data = '';
       res.on('data', (chunk) => data += chunk);
@@ -40,12 +37,10 @@ function sendOneSignalNotification(title, message, chatUuid, contactName, contac
         resolve(data);
       });
     });
-
     req.on('error', (e) => {
       console.error("❌ OneSignal error:", e);
       reject(e);
     });
-
     req.write(body);
     req.end();
   });
@@ -56,32 +51,32 @@ app.post('/webhook', async (req, res) => {
     const body = req.body;
     console.log("📩 Webhook received:", JSON.stringify(body, null, 2));
 
-  const type = body.type || body.event || body.data?.type || body.data?.event;
-    if (type !== 'received' && type !== 'inbound' && type !== 'message.received') {
+    // ✅ FIXED: event field check
+    const type = body.event || body.type;
+
+    if (type !== 'message.received') {
       console.log("⏩ Skipping event:", type);
       return res.status(200).json({ status: "skipped" });
     }
 
-const contactName = body.data?.contact?.first_name || 
-                    body.contact?.first_name ||
-                    body.data?.from || 
-                    "New Message";
+    // ✅ FIXED: correct data paths
+    const contactName = body.data?.contact?.first_name || 
+                        body.data?.contact?.name || 
+                        body.data?.from || 
+                        "New Message";
 
-const message = body.data?.message?.text || 
-                body.data?.message || 
-                body.message || 
-                "You have a new message";
+    const message = body.data?.message || "You have a new message";
+    const chatUuid = body.data?.chat_id?.toString() || "";
+    const contactPhone = body.data?.from || "";
 
-const chatUuid = body.data?.chat_id || 
-                 body.chat_uuid || 
-                 body.data?.uuid || "";
-
-const contactPhone = body.data?.contact?.phone || 
-                     body.data?.from || 
-                     body.contact_phone || "";
-const contactPhone = body.data?.from || body.contact_phone || "";
-
-    await sendOneSignalNotification(contactName, message, chatUuid, contactName, contactPhone);
+    console.log("🔔 Sending notification to:", contactName);
+    await sendOneSignalNotification(
+      contactName, 
+      message, 
+      chatUuid, 
+      contactName, 
+      contactPhone
+    );
 
     res.status(200).json({ status: "ok" });
   } catch (error) {
