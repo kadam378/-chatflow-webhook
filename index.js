@@ -25,7 +25,7 @@ function sendOneSignalNotification(title, message, chatUuid, contactName, contac
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Basic ${ONESIGNAL_REST_API_KEY}`,
+        'Authorization': `Key ${ONESIGNAL_REST_API_KEY}`,
         'Content-Length': Buffer.byteLength(body)
       }
     };
