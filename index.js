@@ -57,7 +57,7 @@ app.post('/webhook', async (req, res) => {
     console.log("📩 Webhook received:", JSON.stringify(body, null, 2));
 
     const type = body.type || body.event;
-    if (type !== 'received' && type !== 'inbound') {
+    if (type !== 'received' && type !== 'inbound' && type !== 'message.received') {
       console.log("⏩ Skipping event:", type);
       return res.status(200).json({ status: "skipped" });
     }
