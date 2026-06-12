@@ -62,10 +62,10 @@ app.post('/webhook', async (req, res) => {
       return res.status(200).json({ status: "skipped" });
     }
 
-    const contactName = body.contact_name || body.from || "New Message";
-    const message = body.message || body.text || "You have a new message";
-    const chatUuid = body.chat_uuid || body.uuid || body.chat_id || "";
-    const contactPhone = body.contact_phone || body.phone || "";
+const contactName = body.data?.contact?.first_name || body.data?.from || body.contact_name || "New Message";
+const message = body.data?.message || body.message || "You have a new message";
+const chatUuid = body.data?.chat_id || body.chat_uuid || "";
+const contactPhone = body.data?.from || body.contact_phone || "";
 
     await sendOneSignalNotification(contactName, message, chatUuid, contactName, contactPhone);
 
