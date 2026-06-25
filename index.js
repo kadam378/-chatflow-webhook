@@ -4,7 +4,7 @@ const app = express();
 app.use(express.json());
 
 const ONESIGNAL_APP_ID = "de090e53-aae0-43d5-879a-533989f269f7";
-const ONESIGNAL_REST_API_KEY = "os_v2_app_3yeq4u5k4bb5lb42km4yt4tj67wavvl3sigezxujml4hrye2eeizwvty7kcix5bny4cqyhaq7pj4spbp4svwghyhn5lgafxfcokuysy";
+const ONESIGNAL_REST_API_KEY = process.env.ONESIGNAL_API_KEY;
 
 function sendOneSignalNotification(title, message, chatUuid, contactName, contactPhone) {
   return new Promise((resolve, reject) => {
