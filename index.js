@@ -54,7 +54,7 @@ app.post('/webhook', async (req, res) => {
     // ✅ FIXED: event field check
     const type = body.event || body.type;
 
-    if (type !== 'message.received') {
+    if (!type || !type.includes('message.received')) { {
       console.log("⏩ Skipping event:", type);
       return res.status(200).json({ status: "skipped" });
     }
